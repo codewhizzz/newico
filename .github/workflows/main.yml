@@ -32,7 +32,8 @@ jobs:
         run: gcloud config set project prod-414022  # Use your actual Google Cloud project ID for production
         
       - name: Deploy to Google App Engine
-        run: gcloud app deploy app.yaml --quiet
+        run: gcloud app deploy app/app.yaml --quiet
+        working-directory: ./app
         
       - name: Run Alembic migrations
         run: alembic upgrade head
