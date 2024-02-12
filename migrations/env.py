@@ -12,8 +12,7 @@ from alembic import context
 from app.models import Bookmark, Document, Entity
 
 dotenv_config = dotenv_values(".env")
-connection_string = dotenv_config["LOCAL_PSQL"]
-
+connection_string = os.getenv('DATABASE_URL')
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
