@@ -21,31 +21,27 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
-      # Updated to use the latest version of setup-gcloud
       - name: Authenticate with Google Cloud
-        uses: google-github-actions/setup-gcloud@latest  # Updated to use the latest version
+        uses: google-github-actions/setup-gcloud@v0.3.0
         with:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
-          project_id: prod-414022  # Simplified for consistency
+          project_id: "prod-414022"  # Use your actual Google Cloud project ID for production\
           export_default_credentials: true
 
-      # This step might be redundant if you're only deploying to App Engine and not using gcloud CLI for other configurations
       - name: Configure gcloud CLI
-        run: gcloud config set project prod-414022
+        run: gcloud config set project prod-414022  # Use your actual Google Cloud project ID for production
         
-      # Conditional creation of App Engine app might cause errors if the app already exists. Consider removing or handling it conditionally.
-      # Note: This step should only run if you are certain the App Engine application doesn't exist.
-      # - name: Create App Engine Application (Consider commenting out if app exists)
-      #   run: gcloud app create --project=${{ env.GCLOUD_PROJECT }} --region=us-central
-      #   env:
-      #     GCLOUD_PROJECT: prod-414022
-
       - name: Deploy to Google App Engine
         run: gcloud app deploy app.yaml --quiet
         working-directory: ./app
 
+      - name: Create App Engine Application
+        run: gcloud app create --project=${{ env.GCLOUD_PROJECT }} --region=us-central
+        env:
+          GCLOUD_PROJECT: prod-414022
+          # GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+  
       - name: Run Alembic migrations
         run: alembic upgrade head
         env:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}  # Ensure this secret is set in your GitHub repository
-
