@@ -1,51 +1,51 @@
 import os
-from dotenv import load_dotenv
-from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
-from sqlmodel import SQLModel
 from alembic import context
+from sqlmodel import SQLModel
+# Ensure all your model imports are correctly handled
 from app.models import Bookmark, Document, Entity
 
-# Load environment variables from .env file
-load_dotenv()
-
-# Retrieve the database URL from environment variable
-connection_string = os.getenv('DATABASE_URL')
-
-# Ensure the connection string is correctly retrieved; otherwise, use a default or log an error
-if connection_string is None:
-    raise ValueError("DATABASE_URL environment variable not set")
+# Load the database URL from an environment variable
+sqlalchemy_url = os.getenv('DATABASE_URL')
+if not sqlalchemy_url:
+    raise Exception("DATABASE_URL environment variable not set")
 
 config = context.config
-config.set_main_option("sqlalchemy.url", connection_string)
+# Set the SQLAlchemy URL for Alembic
+config.set_main_option("sqlalchemy.url", sqlalchemy_url)
 
+# Alembic configuration for logging
 if config.config_file_name is not None:
+    from logging.config import fileConfig
     fileConfig(config.config_file_name)
 
 target_metadata = SQLModel.metadata
 
-def run_migrations_offline() -> None:
-    url = connection_string
+def run_migrations_offline():
+    url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=url,
+        url=url, 
         target_metadata=target_metadata,
         literal_binds=True,
-        dialect_opts={"paramstyle": "named"},
+        dialect_opts={"paramstyle": "named"}
     )
 
     with context.begin_transaction():
         context.run_migrations()
 
-def run_migrations_online() -> None:
+def run_migrations_online():
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
-        prefix="sqlalchemy.",
+        prefix='sqlalchemy.',
         poolclass=pool.NullPool,
-        url=connection_string,  # Ensure the engine uses the provided connection string
+        url=sqlalchemy_url  # Directly use sqlalchemy_url
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection, 
+            target_metadata=target_metadata
+        )
 
         with context.begin_transaction():
             context.run_migrations()
