@@ -1,3 +1,14 @@
+name: CI/CD Pipeline for FastAPI Application
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -13,25 +24,23 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      # Decode the Base64-encoded service account key
-      - name: Decode GCP Service Account Key
-        run: echo "${{ secrets.GCP_SA_KEY_BASE64 }}" | base64 -d > gcp-service-account-key.json
-        shell: bash
-
-      # Use the decoded service account key for authentication
+          
       - name: Authenticate with Google Cloud
-        uses: google-github-actions/setup-gcloud@v0.3.0
+        uses: google-github-actions/setup-gcloud@v0.3.0  # Ensure this uses the latest verified version
         with:
-          service_account_key: ${{ secrets.GCP_SA_KEY_BASE64 }}
-          project_id: prod-414022
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: prod-414022  # Simplified for consistency
           export_default_credentials: true
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-service-account-key.json
 
       - name: Configure gcloud CLI
         run: gcloud config set project prod-414022
         
+      # This step is commented out; uncomment if creating a new App Engine app
+      # - name: Create App Engine Application
+      #   run: gcloud app create --project=${{ env.GCLOUD_PROJECT }} --region=us-central
+      #   env:
+      #     GCLOUD_PROJECT: prod-414022
+  
       - name: Deploy to Google App Engine
         run: gcloud app deploy app.yaml --quiet
         working-directory: ./app
