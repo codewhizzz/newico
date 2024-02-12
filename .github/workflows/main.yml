@@ -21,6 +21,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # Added: Log installed packages for troubleshooting
+      - name: Log installed packages
+        run: pip freeze
+
       - name: Decode GCP Service Account Key
         run: |
           echo "${{ secrets.GCP_SA_KEY }}" | base64 -d > "$HOME/gcp-service-account-key.json"
@@ -35,7 +39,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v0.3.0
         with:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
-          project_id: prod-414022  # Remove the backslash at the end of this line
+          project_id: prod-414022
           export_default_credentials: true
 
       - name: Configure gcloud CLI
