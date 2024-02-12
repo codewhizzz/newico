@@ -22,7 +22,7 @@ jobs:
           pip install -r requirements.txt
           
       - name: Authenticate with Google Cloud
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@v0
         with:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           project_id: "prod-414022"  # Use your actual Google Cloud project ID for production\
