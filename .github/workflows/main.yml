@@ -35,6 +35,12 @@ jobs:
         run: gcloud app deploy app.yaml --quiet
         working-directory: ./app
 
+      - name: Create App Engine Application
+        run: gcloud app create --project=${{ env.GCLOUD_PROJECT }} --region=us-central
+        env:
+          GCLOUD_PROJECT: prod-414022
+          # GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+  
       - name: Run Alembic migrations
         run: alembic upgrade head
         env:
