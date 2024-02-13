@@ -6,7 +6,7 @@ from app.models import Bookmark, Document, Entity
 
 # Directly setting the sqlalchemy_url with proper escaping for special characters
 # NOTE: For a more secure approach, consider using environment variables and .env files
-sqlalchemy_url = r"postgresql+psycopg2://newsql:googleCloud1@34.133.14.187:5432/mydatabase"
+sqlalchemy_url = r"postgresql+pg8000://newsql:googleCloud1@34.133.14.187:5432/mydatabase"
 
 config = context.config
 config.set_main_option("sqlalchemy.url", sqlalchemy_url)
